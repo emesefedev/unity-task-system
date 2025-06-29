@@ -17,7 +17,7 @@ using UnityEngine;
 using BattleRoyaleTycoon;
 using V_AnimationSystem;
 
-namespace CM_TaskSystem {
+namespace TaskSystem {
 
     public class CM_Worker : CM_IWorker {
 

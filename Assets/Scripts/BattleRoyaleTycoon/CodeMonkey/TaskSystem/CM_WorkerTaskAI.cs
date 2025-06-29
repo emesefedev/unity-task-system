@@ -15,7 +15,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using CodeMonkey;
 
-namespace CM_TaskSystem {
+namespace TaskSystem {
 
     public class CM_WorkerTaskAI : MonoBehaviour {
 
@@ -25,11 +25,11 @@ namespace CM_TaskSystem {
         }
 
         private CM_IWorker worker;
-        private CM_TaskSystem taskSystem;
+        private TaskSystem taskSystem;
         private State state;
         private float waitingTimer;
 
-        public void Setup(CM_IWorker worker, CM_TaskSystem taskSystem) {
+        public void Setup(CM_IWorker worker, TaskSystem taskSystem) {
             this.worker = worker;
             this.taskSystem = taskSystem;
             state = State.WaitingForNextTask;
@@ -53,7 +53,7 @@ namespace CM_TaskSystem {
 
         private void RequestNextTask() {
             CMDebug.TextPopup("RequestNextTask", worker.GetPosition());
-            CM_TaskSystem.Task task = taskSystem.RequestNextTask();
+            TaskSystem.Task task = taskSystem.RequestNextTask();
             if (task == null) {
                 state = State.WaitingForNextTask;
             } else {
@@ -62,7 +62,7 @@ namespace CM_TaskSystem {
             }
         }
 
-        private void ExecuteTask(CM_TaskSystem.Task task) {
+        private void ExecuteTask(TaskSystem.Task task) {
             CMDebug.TextPopup("ExecuteTask", worker.GetPosition());
             worker.MoveTo(task.targetPosition, () => {
                 state = State.WaitingForNextTask;

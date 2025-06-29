@@ -16,14 +16,14 @@ using UnityEngine;
 using CodeMonkey;
 using CodeMonkey.Utils;
 
-namespace CM_TaskSystem {
+namespace TaskSystem {
 
     public class CM_GameHandler : MonoBehaviour {
 
-        private CM_TaskSystem taskSystem;
+        private TaskSystem taskSystem;
 
         private void Start() {
-            taskSystem = new CM_TaskSystem();
+            taskSystem = new TaskSystem();
 
             CM_Worker worker = CM_Worker.Create(new Vector3(500, 500));
             CM_WorkerTaskAI workerTaskAI = worker.gameObject.AddComponent<CM_WorkerTaskAI>();
@@ -35,14 +35,14 @@ namespace CM_TaskSystem {
 
             /*FunctionTimer.Create(() => {
                 CMDebug.TextPopupMouse("Task Added");
-                CM_TaskSystem.Task task = new CM_TaskSystem.Task { targetPosition = new Vector3(550, 550) };
+                TaskSystem.Task task = new TaskSystem.Task { targetPosition = new Vector3(550, 550) };
                 taskSystem.AddTask(task);
             }, 5f);^*/
         }
 
         private void Update() {
             if (Input.GetMouseButtonDown(0)) {
-                CM_TaskSystem.Task task = new CM_TaskSystem.Task { targetPosition = UtilsClass.GetMouseWorldPosition() };
+                TaskSystem.Task task = new TaskSystem.Task { targetPosition = UtilsClass.GetMouseWorldPosition() };
                 taskSystem.AddTask(task);
             }
         }

@@ -15,7 +15,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace CM_TaskSystem {
+namespace TaskSystem {
 
     public interface CM_IWorker {
 
