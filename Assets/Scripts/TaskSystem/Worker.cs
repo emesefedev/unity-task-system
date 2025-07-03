@@ -1,32 +1,79 @@
-using System;
 using UnityEngine;
+using System.Collections;
+using System;
+
 
 namespace TaskSystem {
 
-    public class Worker : IWorker {
+    public class Worker : MonoBehaviour, IWorker {
 
-        public GameObject gameObject;
-
-        public static Worker Create(Vector3 position) {
-            return new Worker(position);
-        }
-
-        private Worker(Vector3 position)
+        public void MoveTo(Vector3 position, Action onArrivedAtPosition = null)
         {
-            gameObject = GameManager.Instance.InstantiateWorker(position);
+            StartCoroutine(MoveToCoroutine(position, onArrivedAtPosition));
         }
 
-        public void MoveTo(Vector3 position, Action onArrivedAtPosition = null) {
+        private IEnumerator MoveToCoroutine(Vector3 position, Action onArrivedAtPosition = null)
+        {
+            Vector3 direction = position - gameObject.transform.position;
+            float distanceToTarget = direction.magnitude;
+
+            Debug.Log(GetPosition());
+            while (distanceToTarget > 0.1f)
+            {
+                if (TryMove(direction.normalized, 40f * Time.deltaTime))
+                {
+                    direction = position - gameObject.transform.position;
+                    distanceToTarget = direction.magnitude;
+                    Debug.Log(GetPosition());
+                    yield return null;
+                }
+                else
+                {
+                    yield break;    
+                }
+            }
             
+            onArrivedAtPosition?.Invoke();
         }
 
-        public bool IsMoving()
+        public Vector3 GetPosition()
         {
-            return true;
+            return transform.position;
         }
 
-        public Vector3 GetPosition() {
-            return gameObject.transform.position;
+        private bool CanMove(Vector3 direction, float distance)
+        {
+            return Physics2D.Raycast(transform.position, direction, distance).collider == null;
+        }
+
+        private bool TryMove(Vector3 baseDirection, float distance)
+        {
+            Vector3 direction = baseDirection;
+            bool canMove = CanMove(direction, distance);
+            if (!canMove)
+            {
+                // Hit something. Can't move diagonally
+                // Test if can move horizontally
+                direction = new Vector3(baseDirection.x, 0, 0).normalized;
+                canMove = direction.x != 0 && CanMove(direction, distance);
+
+                if (!canMove)
+                {
+                    // Can't move horizontally
+                    // Test if can move vertically
+                    direction = new Vector3(0, baseDirection.y, 0).normalized;
+                    canMove = direction.y != 0 && CanMove(direction, distance);
+                }
+            }
+
+            if (canMove)
+            {
+                // Can move vertically
+                transform.position += direction * distance;
+                return true;
+            }
+
+            return false;
         }
 
     }

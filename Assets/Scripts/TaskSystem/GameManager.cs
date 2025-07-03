@@ -8,7 +8,7 @@ namespace TaskSystem {
         public static GameManager Instance { get; private set; }
 
         private TaskSystem taskSystem;
-        public GameObject worker;
+        public GameObject workerPrefab;
 
         private void Awake()
         {
@@ -22,7 +22,7 @@ namespace TaskSystem {
         private void Start() {
             taskSystem = new TaskSystem();
 
-            Worker worker = Worker.Create(Vector3.zero);
+            Worker worker = InstantiateWorker(Vector3.zero);
             WorkerTaskAI workerTaskAI = worker.gameObject.AddComponent<WorkerTaskAI>();
             workerTaskAI.Setup(worker, taskSystem);
         }
@@ -36,9 +36,9 @@ namespace TaskSystem {
             }
         }
 
-        public GameObject InstantiateWorker(Vector3 position)
+        private Worker InstantiateWorker(Vector3 position)
         {
-            return Instantiate(worker, position, Quaternion.identity);
+            return Instantiate(workerPrefab, position, Quaternion.identity).GetComponent<Worker>();
         }
     }
 }

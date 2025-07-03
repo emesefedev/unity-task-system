@@ -370,7 +370,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14212b4c95dc9614092f7d8843eb5bab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  worker: {fileID: 6726692787654214145, guid: 755d6adc79a9e425e9b3ecd73eabb9ad, type: 3}
+  workerPrefab: {fileID: 6726692787654214145, guid: 755d6adc79a9e425e9b3ecd73eabb9ad, type: 3}
 --- !u!4 &1513621932
 Transform:
   m_ObjectHideFlags: 0
