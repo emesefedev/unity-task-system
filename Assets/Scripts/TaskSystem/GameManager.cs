@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using Emesefe.Utilities;
 
 namespace TaskSystem {
 
@@ -23,7 +24,16 @@ namespace TaskSystem {
 
             Worker worker = Worker.Create(Vector3.zero);
             WorkerTaskAI workerTaskAI = worker.gameObject.AddComponent<WorkerTaskAI>();
-            workerTaskAI.Setup(worker);
+            workerTaskAI.Setup(worker, taskSystem);
+        }
+
+        private void Update()
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                TaskSystem.Task newTask = new TaskSystem.Task { targetPosition = Utils.GetMouseWorldPosition()};
+                taskSystem.AddTask(newTask);
+            }
         }
 
         public GameObject InstantiateWorker(Vector3 position)

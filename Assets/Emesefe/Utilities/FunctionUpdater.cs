@@ -17,26 +17,27 @@ namespace Emesefe.Utilities
 
         }
         
-        private static List<FunctionUpdater> updaterList; // Holds a reference to all active updaters
-        private static GameObject initGameObject; // Global game object used for initializing class, is destroyed on scene change
+        private static List<FunctionUpdater> _updaterList; // Holds a reference to all active updaters
+        private static GameObject _initGameObject; // Global game object used for initializing class, is destroyed on scene change
         
-        private GameObject gameObject;
-        private string functionName;
-        private bool active;
-        private Func<bool> updateFunc; // Destroy Updater if return true;
+        private readonly GameObject _gameObject;
+        private readonly Func<bool> _updateFunc; // Destroy Updater if return true
+        private readonly string _functionName;
+        private readonly bool _active;
         
         private FunctionUpdater(GameObject gameObject, Func<bool> updateFunc, string functionName, bool active) {
-            this.gameObject = gameObject;
-            this.updateFunc = updateFunc;
-            this.functionName = functionName;
-            this.active = active;
+            _gameObject = gameObject;
+            _updateFunc = updateFunc;
+            _functionName = functionName;
+            _active = active;
         }
         
-        private static void InitIfNeeded() {
-            if (initGameObject == null) {
-                initGameObject = new GameObject("FunctionUpdater Global");
-                updaterList = new List<FunctionUpdater>();
-            }
+        private static void InitIfNeeded()
+        {
+            if (_initGameObject != null) return;
+            
+            _initGameObject = new GameObject("FunctionUpdater Global");
+            _updaterList = new List<FunctionUpdater>();
         }
         
         public static FunctionUpdater Create(Action updateFunc) {
@@ -70,47 +71,50 @@ namespace Emesefe.Utilities
             FunctionUpdater functionUpdater = new FunctionUpdater(gameObject, updateFunc, functionName, active);
             gameObject.GetComponent<MonoBehaviourHook>().OnUpdate = functionUpdater.Update;
 
-            updaterList.Add(functionUpdater);
+            _updaterList.Add(functionUpdater);
             return functionUpdater;
         }
         
         public static void StopUpdaterWithName(string functionName) {
             InitIfNeeded();
-            for (int i = 0; i < updaterList.Count; i++) {
-                if (updaterList[i].functionName == functionName) {
-                    updaterList[i].DestroySelf();
-                    return;
-                }
+            
+            for (int i = 0; i < _updaterList.Count; i++)
+            {
+                if (_updaterList[i]._functionName != functionName) continue;
+                
+                _updaterList[i].DestroySelf();
+                return;
             }
         }
 
         private static void StopAllUpdatersWithName(string functionName) {
             InitIfNeeded();
-            for (int i = 0; i < updaterList.Count; i++)
+            
+            for (int i = 0; i < _updaterList.Count; i++)
             {
-                if (updaterList[i].functionName != functionName) continue;
+                if (_updaterList[i]._functionName != functionName) continue;
                 
-                updaterList[i].DestroySelf();
+                _updaterList[i].DestroySelf();
                 i--;
             }
         }
         
         private static void RemoveUpdater(FunctionUpdater funcUpdater) {
             InitIfNeeded();
-            updaterList.Remove(funcUpdater);
+            _updaterList.Remove(funcUpdater);
         }
         
         private void Update() {
-            if (!active) return;
-            if (updateFunc()) {
+            if (!_active) return;
+            if (_updateFunc()) {
                 DestroySelf();
             }
         }
         
         private void DestroySelf() {
             RemoveUpdater(this);
-            if (gameObject != null) {
-                UnityEngine.Object.Destroy(gameObject);
+            if (_gameObject != null) {
+                UnityEngine.Object.Destroy(_gameObject);
             }
         }
     }

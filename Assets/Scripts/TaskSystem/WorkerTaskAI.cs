@@ -13,14 +13,16 @@ namespace TaskSystem
         
         private IWorker worker;
         private State state;
+        private TaskSystem taskSystem;
         
         private float waitingTimer;
-        private float waitingTimerMax = .5f;
+        private float waitingTimerMax = .2f;
 
-        public void Setup(IWorker worker)
+        public void Setup(IWorker worker, TaskSystem taskSystem)
         {
             this.worker = worker;  
-            this.state = State.WaitingForNextTask;
+            state = State.WaitingForNextTask;
+            this.taskSystem = taskSystem;
         }
 
         private void Update()
@@ -44,6 +46,27 @@ namespace TaskSystem
         private void RequestNextTask()
         {
             EmesefeDebug.TextPopupMouse("RequestNextTask");
+            TaskSystem.Task task = taskSystem.RequestNextTask();
+
+            if (task == null)
+            {
+                // No tasks available
+                state = State.WaitingForNextTask;
+            }
+            else
+            {
+                state = State.ExecutingTask;
+                ExecuteTask(task);
+            }
+        }
+
+        private void ExecuteTask(TaskSystem.Task task)
+        {
+            EmesefeDebug.TextPopupMouse("ExecuteTask");
+            worker.MoveTo(task.targetPosition, () =>
+            {
+                state = State.WaitingForNextTask;
+            });
         }
     }    
 }
