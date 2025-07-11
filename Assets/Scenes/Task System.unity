@@ -203,7 +203,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0.31149876, g: 0.5283019, b: 0.35036486, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -371,6 +371,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   workerPrefab: {fileID: 6726692787654214145, guid: 755d6adc79a9e425e9b3ecd73eabb9ad, type: 3}
+  stainPrefab: {fileID: 5635668111191482201, guid: 9e6c1b899fd0941a997b65ff1c8bc913, type: 3}
 --- !u!4 &1513621932
 Transform:
   m_ObjectHideFlags: 0

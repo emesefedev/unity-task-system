@@ -11,23 +11,23 @@ namespace TaskSystem
             ExecutingTask,
         }
         
-        private IWorker worker;
-        private State state;
-        private TaskSystem taskSystem;
+        private Worker _worker;
+        private State _state;
+        private TaskSystem _taskSystem;
         
         private float waitingTimer;
         private float waitingTimerMax = .2f;
 
-        public void Setup(IWorker worker, TaskSystem taskSystem)
+        public void Setup(Worker worker, TaskSystem taskSystem)
         {
-            this.worker = worker;  
-            state = State.WaitingForNextTask;
-            this.taskSystem = taskSystem;
+            _worker = worker;  
+            _state = State.WaitingForNextTask;
+            _taskSystem = taskSystem;
         }
 
         private void Update()
         {
-            switch (state)
+            switch (_state)
             {
                 case State.WaitingForNextTask:
                     waitingTimer -= Time.deltaTime;
@@ -45,27 +45,61 @@ namespace TaskSystem
 
         private void RequestNextTask()
         {
-            EmesefeDebug.TextPopupMouse("RequestNextTask");
-            TaskSystem.Task task = taskSystem.RequestNextTask();
+            EmesefeDebug.TextPopup("RequestNextTask", _worker.GetPosition());
+            TaskSystem.Task task = _taskSystem.RequestNextTask();
 
             if (task == null)
             {
                 // No tasks available
-                state = State.WaitingForNextTask;
+                _state = State.WaitingForNextTask;
             }
             else
             {
-                state = State.ExecutingTask;
-                ExecuteTask(task);
+                _state = State.ExecutingTask;
+                switch (task)
+                {
+                    case TaskSystem.Task.MoveToPositionTask moveToPositionTask:
+                        ExecuteMoveToPositionTask(moveToPositionTask);
+                        break;
+                    case TaskSystem.Task.VictoryTask victoryTask:
+                        ExecuteVictoryTask(victoryTask);
+                        break;
+                    case TaskSystem.Task.CleanUpTask cleanUpTask:
+                        ExecuteCleanupTask(cleanUpTask);
+                        break;
+                }
+               
             }
         }
 
-        private void ExecuteTask(TaskSystem.Task task)
+        private void ExecuteMoveToPositionTask(TaskSystem.Task.MoveToPositionTask task)
         {
-            EmesefeDebug.TextPopupMouse("ExecuteTask");
-            worker.MoveTo(task.targetPosition, () =>
+            EmesefeDebug.TextPopupMouse("ExecuteMoveToPositionTask");
+            _worker.MoveTo(task.targetPosition, () =>
             {
-                state = State.WaitingForNextTask;
+                _state = State.WaitingForNextTask;
+            });
+        }
+        
+        private void ExecuteVictoryTask(TaskSystem.Task.VictoryTask task)
+        {
+            EmesefeDebug.TextPopupMouse("ExecuteVictoryTask");
+            _worker.PlayVictoryAnimation(() =>
+            {
+                _state = State.WaitingForNextTask;
+            });
+        }
+        
+        private void ExecuteCleanupTask(TaskSystem.Task.CleanUpTask task)
+        {
+            EmesefeDebug.TextPopupMouse("ExecuteCleanupTask");
+            _worker.MoveTo(task.targetPosition, () =>
+            {
+                _worker.PlayCleanUpAnimation(() =>
+                {
+                    task.onCleanupAction?.Invoke();
+                    _state = State.WaitingForNextTask;
+                });
             });
         }
     }    

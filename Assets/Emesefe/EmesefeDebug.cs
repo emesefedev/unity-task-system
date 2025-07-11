@@ -13,5 +13,11 @@ namespace Emesefe
             offset ??= DefaultOffset;
             Utils.CreateWorldTextTMProPopup(text, Utils.GetMouseWorldPosition() + (Vector3)offset);
         }
+        
+        // Text Popup at the world position
+        public static void TextPopup(string text, Vector3 position, float popupTime = 1f) {
+            Utils.CreateWorldTextTMProPopup(text, position, popupTime);
+        }
+
     }
 }

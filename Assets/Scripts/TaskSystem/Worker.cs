@@ -6,25 +6,54 @@ using System;
 namespace TaskSystem {
 
     public class Worker : MonoBehaviour, IWorker {
+        
+        public Vector3 GetPosition()
+        {
+            return transform.position;
+        }
 
         public void MoveTo(Vector3 position, Action onArrivedAtPosition = null)
         {
             StartCoroutine(MoveToCoroutine(position, onArrivedAtPosition));
+        }
+        
+        public void PlayVictoryAnimation(Action onFinishedAnimation = null)
+        {
+            StartCoroutine(PlayVictoryAnimationCoroutine(onFinishedAnimation));
+        }
+        
+        public void PlayCleanUpAnimation(Action onFinishedAnimation = null)
+        {
+            StartCoroutine(PlayCleanUpAnimationCoroutine(onFinishedAnimation));
+        }
+        
+        private IEnumerator PlayCleanUpAnimationCoroutine(Action onFinishedAnimation = null)
+        {
+            // TODO: Play Clean Up Animation and Wait for it to end to invoke onFinishedAnimation
+            yield return new WaitForSeconds(2);
+            
+            onFinishedAnimation?.Invoke();
+        }
+        
+        private IEnumerator PlayVictoryAnimationCoroutine(Action onFinishedAnimation = null)
+        {
+            // TODO: Play Victory Animation and Wait for it to end to invoke onFinishedAnimation
+            yield return new WaitForSeconds(2);
+            
+            onFinishedAnimation?.Invoke();
         }
 
         private IEnumerator MoveToCoroutine(Vector3 position, Action onArrivedAtPosition = null)
         {
             Vector3 direction = position - gameObject.transform.position;
             float distanceToTarget = direction.magnitude;
-
-            Debug.Log(GetPosition());
+            
             while (distanceToTarget > 0.1f)
             {
                 if (TryMove(direction.normalized, 40f * Time.deltaTime))
                 {
                     direction = position - gameObject.transform.position;
                     distanceToTarget = direction.magnitude;
-                    Debug.Log(GetPosition());
                     yield return null;
                 }
                 else
@@ -34,11 +63,6 @@ namespace TaskSystem {
             }
             
             onArrivedAtPosition?.Invoke();
-        }
-
-        public Vector3 GetPosition()
-        {
-            return transform.position;
         }
 
         private bool CanMove(Vector3 direction, float distance)
@@ -75,7 +99,5 @@ namespace TaskSystem {
 
             return false;
         }
-
     }
-
 }

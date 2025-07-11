@@ -1,12 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace TaskSystem {
 
     public class TaskSystem {
 
-        public class Task {
-            public Vector3 targetPosition;
+        public abstract class Task {
+            public class MoveToPositionTask : Task { public Vector3 targetPosition; }
+            public class VictoryTask : Task { }
+
+            public class CleanUpTask : Task
+            {
+                public Vector3 targetPosition;
+                public Action onCleanupAction;
+            }
+            
         }
 
         private List<Task> taskList;
