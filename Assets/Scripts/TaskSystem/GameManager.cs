@@ -6,9 +6,12 @@ namespace TaskSystem {
     public class GameManager : MonoBehaviour {
 
         private TaskSystem taskSystem;
+        private WeaponSlot weaponSlot;
         
         [SerializeField] private GameObject workerPrefab;
         [SerializeField] private GameObject stainPrefab;
+        [SerializeField] private GameObject weaponPrefab;
+        [SerializeField] private GameObject weaponSlotPrefab;
 
         private void Start() {
             taskSystem = new TaskSystem();
@@ -17,22 +20,51 @@ namespace TaskSystem {
             WorkerTaskAI workerTaskAI = worker.gameObject.AddComponent<WorkerTaskAI>();
             workerTaskAI.Setup(worker, taskSystem);
             
-            worker = InstantiateWorker(5 * Vector3.up);
-            workerTaskAI = worker.gameObject.AddComponent<WorkerTaskAI>();
-            workerTaskAI.Setup(worker, taskSystem);
+            // worker = InstantiateWorker(5 * Vector3.up);
+            // workerTaskAI = worker.gameObject.AddComponent<WorkerTaskAI>();
+            // workerTaskAI.Setup(worker, taskSystem);
+            
+            GameObject weaponSlotGameObject = InstantiateWeaponSlot(Vector3.left * 15);
+            weaponSlot = new WeaponSlot(weaponSlotGameObject.transform);
+            
         }
 
         private void Update()
         {
             if (Input.GetMouseButtonDown(0))
             {
-                InstantiateStainWithTask(Utils.GetMouseWorldPosition());
+                GameObject weaponGameObject = InstantiateWeapon(Utils.GetMouseWorldPosition());
+                taskSystem.EnqueueTask(() =>
+                {
+                    if (weaponSlot.IsEmpty())
+                    {
+                        weaponSlot.SetHasWeaponIncoming(true);
+                        Task task = new Task.TakeWeaponToWeaponSlot
+                        {
+                            weaponPosition = weaponGameObject.transform.position,
+                            weaponSlotPosition = weaponSlot.GetPosition(),
+                            grabWeapon = (workerTaskAI) =>
+                            {
+                                weaponGameObject.transform.SetParent(workerTaskAI.transform);
+                            },
+                            dropWeapon = () =>
+                            {
+                                weaponGameObject.transform.SetParent(null);
+                                weaponSlot.SetWeaponTransform(weaponGameObject.transform);
+                            }
+                        };
+
+                        return task;
+                    }
+
+                    return null;
+                });
             }
             
             if (Input.GetMouseButtonDown(1))
             {
-                Task newTask = new Task.MoveToPositionTask { targetPosition = Utils.GetMouseWorldPosition()};
-                taskSystem.AddTask(newTask);
+                // Task newTask = new Task.MoveToPositionTask { targetPosition = Utils.GetMouseWorldPosition()};
+                // taskSystem.AddTask(newTask);
             }
 
             // if (Input.GetMouseButtonDown(1))
@@ -86,6 +118,16 @@ namespace TaskSystem {
 
                 return null;
             });
+        }
+        
+        private GameObject InstantiateWeapon(Vector3 position)
+        {
+            return Instantiate(weaponPrefab, position, Quaternion.identity);
+        }
+        
+        private GameObject InstantiateWeaponSlot(Vector3 position)
+        {
+            return Instantiate(weaponSlotPrefab, position, Quaternion.identity);
         }
     }
 }

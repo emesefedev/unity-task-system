@@ -372,6 +372,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   workerPrefab: {fileID: 6726692787654214145, guid: 755d6adc79a9e425e9b3ecd73eabb9ad, type: 3}
   stainPrefab: {fileID: 5635668111191482201, guid: 9e6c1b899fd0941a997b65ff1c8bc913, type: 3}
+  weaponPrefab: {fileID: 5590402786662693009, guid: 6a5ee63a556a741d5a75cbaf29e61187, type: 3}
+  weaponSlotPrefab: {fileID: 9189970968607028076, guid: ef86970d4fb2a4d4b81800cc233a1797, type: 3}
 --- !u!4 &1513621932
 Transform:
   m_ObjectHideFlags: 0

@@ -67,6 +67,9 @@ namespace TaskSystem
                     case Task.CleanUpTask cleanUpTask:
                         ExecuteCleanupTask(cleanUpTask);
                         break;
+                    case Task.TakeWeaponToWeaponSlot takeWeaponToWeaponSlotTask:
+                        ExecuteTakeWeaponToWeaponSlotTask(takeWeaponToWeaponSlotTask);
+                        break;
                 }
                
             }
@@ -98,6 +101,20 @@ namespace TaskSystem
                 _worker.PlayCleanUpAnimation(() =>
                 {
                     task.onCleanupAction?.Invoke();
+                    _state = State.WaitingForNextTask;
+                });
+            });
+        }
+        
+        private void ExecuteTakeWeaponToWeaponSlotTask(Task.TakeWeaponToWeaponSlot task)
+        {
+            EmesefeDebug.TextPopupMouse("ExecuteTakeWeaponToWeaponSlotTask");
+            _worker.MoveTo(task.weaponPosition,() =>
+            {
+                task.grabWeapon(this);
+                _worker.MoveTo(task.weaponSlotPosition, () =>
+                {
+                    task.dropWeapon();
                     _state = State.WaitingForNextTask;
                 });
             });
