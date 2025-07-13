@@ -1,12 +1,15 @@
 ﻿using UnityEngine;
 using Emesefe.Utilities;
+using System.Collections.Generic;
 
 namespace TaskSystem {
 
     public class GameManager : MonoBehaviour {
 
-        private TaskSystem taskSystem;
-        private WeaponSlot weaponSlot;
+        private TaskSystem<Task> taskSystem;
+        public static TaskSystem<TransporterTask> transporterTaskSystem;
+        
+        private List<WeaponSlot> weaponSlotList;
         
         [SerializeField] private GameObject workerPrefab;
         [SerializeField] private GameObject stainPrefab;
@@ -14,18 +17,26 @@ namespace TaskSystem {
         [SerializeField] private GameObject weaponSlotPrefab;
 
         private void Start() {
-            taskSystem = new TaskSystem();
+            taskSystem = new TaskSystem<Task>();
+            transporterTaskSystem = new TaskSystem<TransporterTask>();
+            weaponSlotList = new List<WeaponSlot>();
 
-            Worker worker = InstantiateWorker(Vector3.zero);
+            Worker worker = InstantiateWorker(Vector3.right * 10);
             WorkerTaskAI workerTaskAI = worker.gameObject.AddComponent<WorkerTaskAI>();
             workerTaskAI.Setup(worker, taskSystem);
             
-            // worker = InstantiateWorker(5 * Vector3.up);
-            // workerTaskAI = worker.gameObject.AddComponent<WorkerTaskAI>();
-            // workerTaskAI.Setup(worker, taskSystem);
+            worker = InstantiateWorker(Vector3.left * 10);
+            WorkerTransporterTaskAI workerTransporterTaskAI = worker.gameObject.AddComponent<WorkerTransporterTaskAI>();
+            workerTransporterTaskAI.Setup(worker, transporterTaskSystem);
             
-            GameObject weaponSlotGameObject = InstantiateWeaponSlot(Vector3.left * 15);
-            weaponSlot = new WeaponSlot(weaponSlotGameObject.transform);
+            GameObject weaponSlotGameObject = InstantiateWeaponSlot(Vector3.zero);
+            weaponSlotList.Add(new WeaponSlot(weaponSlotGameObject.transform));
+            
+            weaponSlotGameObject = InstantiateWeaponSlot(Vector3.up * 5);
+            weaponSlotList.Add(new WeaponSlot(weaponSlotGameObject.transform));
+            
+            weaponSlotGameObject = InstantiateWeaponSlot(Vector3.down * 5);
+            weaponSlotList.Add(new WeaponSlot(weaponSlotGameObject.transform));
             
         }
 
@@ -36,42 +47,35 @@ namespace TaskSystem {
                 GameObject weaponGameObject = InstantiateWeapon(Utils.GetMouseWorldPosition());
                 taskSystem.EnqueueTask(() =>
                 {
-                    if (weaponSlot.IsEmpty())
+                    foreach (WeaponSlot weaponSlot in weaponSlotList)
                     {
-                        weaponSlot.SetHasWeaponIncoming(true);
-                        Task task = new Task.TakeWeaponToWeaponSlot
+                        if (weaponSlot.IsEmpty())
                         {
-                            weaponPosition = weaponGameObject.transform.position,
-                            weaponSlotPosition = weaponSlot.GetPosition(),
-                            grabWeapon = (workerTaskAI) =>
+                            weaponSlot.SetHasWeaponIncoming(true);
+                            Task task = new Task.TakeWeaponToWeaponSlot
                             {
-                                weaponGameObject.transform.SetParent(workerTaskAI.transform);
-                            },
-                            dropWeapon = () =>
-                            {
-                                weaponGameObject.transform.SetParent(null);
-                                weaponSlot.SetWeaponTransform(weaponGameObject.transform);
-                            }
-                        };
+                                weaponPosition = weaponGameObject.transform.position,
+                                weaponSlotPosition = weaponSlot.GetPosition(),
+                                grabWeapon = (workerTaskAI) =>
+                                {
+                                    weaponGameObject.transform.SetParent(workerTaskAI.transform);
+                                },
+                                dropWeapon = () =>
+                                {
+                                    weaponGameObject.transform.SetParent(null);
+                                    weaponSlot.SetWeaponTransform(weaponGameObject.transform);
+                                }
+                            };
 
-                        return task;
+                            return task;
+                        }
+                        // WeaponSlot not empty, keep looking
                     }
-
+                    
+                    // No weaponSlot empty, try again later
                     return null;
                 });
             }
-            
-            if (Input.GetMouseButtonDown(1))
-            {
-                // Task newTask = new Task.MoveToPositionTask { targetPosition = Utils.GetMouseWorldPosition()};
-                // taskSystem.AddTask(newTask);
-            }
-
-            // if (Input.GetMouseButtonDown(1))
-            // {
-            //     TaskSystem.Task newTask = new TaskSystem.Task.VictoryTask { };
-            //     taskSystem.AddTask(newTask);
-            // }
         }
 
         private Worker InstantiateWorker(Vector3 position)
@@ -88,7 +92,7 @@ namespace TaskSystem {
         {
             GameObject stain = InstantiateStain(position);
             float cleanUpTime = Time.time + 5f; // 5 seconds must pass after instantiation until start cleaning
-            //taskSystem.AddTask(newTask);
+            
             taskSystem.EnqueueTask(() =>
             {
                 if (Time.time >= cleanUpTime)

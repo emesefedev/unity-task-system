@@ -13,12 +13,12 @@ namespace TaskSystem
         
         private Worker _worker;
         private State _state;
-        private TaskSystem _taskSystem;
+        private TaskSystem<Task> _taskSystem;
         
         private float waitingTimer;
         private float waitingTimerMax = .2f;
 
-        public void Setup(Worker worker, TaskSystem taskSystem)
+        public void Setup(Worker worker, TaskSystem<Task> taskSystem)
         {
             _worker = worker;  
             _state = State.WaitingForNextTask;

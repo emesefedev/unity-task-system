@@ -1,17 +1,17 @@
 using System;
 using UnityEngine;
 
-public class QueuedTask
+public class QueuedTask<TaskType> where TaskType : TaskSystem.TaskBase
 {
 
-    private Func<Task> _tryGetTaskFunc;
+    private Func<TaskType> _tryGetTaskFunc;
     
-    public QueuedTask(Func<Task> tryGetTaskFunc)
+    public QueuedTask(Func<TaskType> tryGetTaskFunc)
     {
         _tryGetTaskFunc = tryGetTaskFunc;
     }
 
-    public Task TryDequeueTask()
+    public TaskType TryDequeueTask()
     {
         return _tryGetTaskFunc();
     }

@@ -50,7 +50,7 @@ namespace TaskSystem {
             
             while (distanceToTarget > 0.1f)
             {
-                if (TryMove(direction.normalized, 40f * Time.deltaTime))
+                if (TryMove(direction.normalized, 10f * Time.deltaTime))
                 {
                     direction = position - gameObject.transform.position;
                     distanceToTarget = direction.magnitude;

@@ -4,22 +4,24 @@ using Emesefe.Utilities;
 using UnityEngine;
 
 namespace TaskSystem {
+    
+    public abstract class TaskBase { }
 
-    public class TaskSystem {
+    public class TaskSystem<TaskType> where TaskType : TaskBase {
 
-        private List<Task> taskList;
-        private List<QueuedTask> queuedTaskList;
+        private List<TaskType> taskList;
+        private List<QueuedTask<TaskType>> queuedTaskList;
 
         public TaskSystem() {
-            taskList = new List<Task>(); // List of all tasks ready to be executed
-            queuedTaskList = new List<QueuedTask>(); // Any queued task must be validated before being dequeued
+            taskList = new List<TaskType>(); // List of all tasks ready to be executed
+            queuedTaskList = new List<QueuedTask<TaskType>>(); // Any queued task must be validated before being dequeued
             FunctionPeriodic.Create(DequeueTasks, .2f); // No need to try dequeue every single frame
         }
 
-        public Task RequestNextTask() {
+        public TaskType RequestNextTask() {
             if (taskList.Count > 0) {
                 // Give worker the first task of the list
-                Task task = taskList[0];
+                TaskType task = taskList[0];
                 taskList.RemoveAt(0);
                 
                 return task;
@@ -29,18 +31,18 @@ namespace TaskSystem {
             return null;
         }
 
-        public void AddTask(Task task) {
+        public void AddTask(TaskType task) {
             taskList.Add(task);
         }
 
-        public void EnqueueTask(QueuedTask queuedTask)
+        public void EnqueueTask(QueuedTask<TaskType> queuedTask)
         {
             queuedTaskList.Add(queuedTask);
         }
         
-        public void EnqueueTask(Func<Task> tryGetTaskFunc)
+        public void EnqueueTask(Func<TaskType> tryGetTaskFunc)
         {
-            QueuedTask queuedTask = new QueuedTask(tryGetTaskFunc);
+            QueuedTask<TaskType> queuedTask = new QueuedTask<TaskType>(tryGetTaskFunc);
             EnqueueTask(queuedTask);
         }
         
@@ -48,8 +50,8 @@ namespace TaskSystem {
         {
             for (int i = 0; i < queuedTaskList.Count; i++)
             {
-                QueuedTask queuedTask = queuedTaskList[i];
-                Task task = queuedTask.TryDequeueTask();
+                QueuedTask<TaskType> queuedTask = queuedTaskList[i];
+                TaskType task = queuedTask.TryDequeueTask();
                 if (task != null)
                 {
                     // Task dequeued. Let's add it to the taskList and remove it from queuedTaskList

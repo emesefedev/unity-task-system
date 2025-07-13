@@ -1,5 +1,6 @@
 using UnityEngine;
 using Emesefe.Utilities;
+using TaskSystem;
 
 public class WeaponSlot
 {
@@ -30,14 +31,26 @@ public class WeaponSlot
         SetHasWeaponIncoming(false);
         UpdateSprite();
 
-        FunctionTimer.Create(() =>
+        if (weaponTransform != null)
         {
-            if (weaponTransform != null)
-            {
-                Object.Destroy(weaponTransform.gameObject);
-                SetWeaponTransform(null);
-            }
-        }, 5f);
+            TransporterTask.TakeWeaponFromWeaponSlotToPosition newTask =
+                new TransporterTask.TakeWeaponFromWeaponSlotToPosition
+                {
+                    weaponSlotPosition = GetPosition(),
+                    targetPosition = GetPosition() + Vector3.right * 10,
+                    grabWeapon = (workerTransporterTaskAI) =>
+                    {
+                        weaponTransform.SetParent(workerTransporterTaskAI.transform);
+                        SetWeaponTransform(null);
+                    },
+                    dropWeapon = () =>
+                    {
+                        weaponTransform.SetParent(null);
+                    }
+
+                };
+            GameManager.transporterTaskSystem.AddTask(newTask);
+        }
     }
 
     public Vector3 GetPosition()
