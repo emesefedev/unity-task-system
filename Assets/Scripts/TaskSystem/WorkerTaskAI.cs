@@ -46,7 +46,7 @@ namespace TaskSystem
         private void RequestNextTask()
         {
             EmesefeDebug.TextPopup("RequestNextTask", _worker.GetPosition());
-            TaskSystem.Task task = _taskSystem.RequestNextTask();
+            Task task = _taskSystem.RequestNextTask();
 
             if (task == null)
             {
@@ -58,13 +58,13 @@ namespace TaskSystem
                 _state = State.ExecutingTask;
                 switch (task)
                 {
-                    case TaskSystem.Task.MoveToPositionTask moveToPositionTask:
+                    case Task.MoveToPositionTask moveToPositionTask:
                         ExecuteMoveToPositionTask(moveToPositionTask);
                         break;
-                    case TaskSystem.Task.VictoryTask victoryTask:
+                    case Task.VictoryTask victoryTask:
                         ExecuteVictoryTask(victoryTask);
                         break;
-                    case TaskSystem.Task.CleanUpTask cleanUpTask:
+                    case Task.CleanUpTask cleanUpTask:
                         ExecuteCleanupTask(cleanUpTask);
                         break;
                 }
@@ -72,7 +72,7 @@ namespace TaskSystem
             }
         }
 
-        private void ExecuteMoveToPositionTask(TaskSystem.Task.MoveToPositionTask task)
+        private void ExecuteMoveToPositionTask(Task.MoveToPositionTask task)
         {
             EmesefeDebug.TextPopupMouse("ExecuteMoveToPositionTask");
             _worker.MoveTo(task.targetPosition, () =>
@@ -81,7 +81,7 @@ namespace TaskSystem
             });
         }
         
-        private void ExecuteVictoryTask(TaskSystem.Task.VictoryTask task)
+        private void ExecuteVictoryTask(Task.VictoryTask task)
         {
             EmesefeDebug.TextPopupMouse("ExecuteVictoryTask");
             _worker.PlayVictoryAnimation(() =>
@@ -90,7 +90,7 @@ namespace TaskSystem
             });
         }
         
-        private void ExecuteCleanupTask(TaskSystem.Task.CleanUpTask task)
+        private void ExecuteCleanupTask(Task.CleanUpTask task)
         {
             EmesefeDebug.TextPopupMouse("ExecuteCleanupTask");
             _worker.MoveTo(task.targetPosition, () =>
